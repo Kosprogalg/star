@@ -1,0 +1,59 @@
+from pyrogram import Client, idle, filters
+from pyrogram.enums import ParseMode
+from pyrogram.handlers import MessageHandler
+from pyrogram.types import Message, BotCommand, ReplyKeyboardMarkup, KeyboardButton
+from my_keys import API_ID, API_HASH
+
+client = Client(name='me_client', api_id=API_ID, api_hash=API_HASH, parse_mode=ParseMode.HTML)
+
+reply_keyboard = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='Basic button'
+        ),
+        KeyboardButton(
+            text='link',
+            request_contact=True
+        )
+    ],
+    [
+        KeyboardButton(
+            text='Send location',
+            request_location=True
+        )
+    ]
+], resize_keyboard=True, one_time_keyboard=True)
+
+def command_start(client: Client, message: Message):
+    message.reply('Hi You entered start command.', reply_markup=reply_keyboard)
+
+def all_reply_button(client: Client, message: Message):
+    message.reply(f'You press button or sent message {message.text}')
+
+def location(client: Client, message: Message):
+    message.reply(f'You sent location {message.location}')
+
+client.add_handler(MessageHandler(command_start, filters.command(commands='start')))
+client.add_handler(MessageHandler(location, filters.location))
+client.add_handler(MessageHandler(location, filters.contact))
+client.add_handler(MessageHandler(all_reply_button))
+
+bot_commands = [
+    BotCommand(
+        command='start',
+        description='Get started'
+    ),
+    BotCommand(
+        command='run',
+        description='Launch'
+    ),
+    BotCommand(
+        command='go',
+        description='Go to'
+    )
+]
+
+client.start()
+client.set_bot_commands(bot_commands)
+idle()
+client.stop()
